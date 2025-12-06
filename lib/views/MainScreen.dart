@@ -213,20 +213,6 @@ class _MainscreenState extends State<Mainscreen> {
 
                                         const SizedBox(height: 4),
 
-                                        // DEBUG: Show image URL
-                                        Text(
-                                          'URL: $imageUrl',
-                                          style: const TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.red,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-
-                                        const SizedBox(height: 4),
-
                                         // type text
                                         Text(
                                           listSubmissions[index].pet_type
