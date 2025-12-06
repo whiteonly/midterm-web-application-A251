@@ -122,6 +122,13 @@ class _MainscreenState extends State<Mainscreen> {
                           } else {// if first image path is empty
                             firstImage = "default.png";
                           }
+
+                          // Build and log image URL (encode filename to be safe)
+                          final imageUrl = '${myconfiguration.baseUrl}/pawpal/assets/uploads/${Uri.encodeComponent(firstImage)}';
+                          // Print the URL to help debugging (check console)
+                          // ignore: avoid_print
+                          print('Image URL: $imageUrl');
+
                           return Card(// each submission displayed in a card
                             elevation: 4,
                             margin: const EdgeInsets.symmetric(
@@ -150,17 +157,38 @@ class _MainscreenState extends State<Mainscreen> {
                                         ),
                                       ),
 
-                                      child: Image.network(// load image from network
-                                        '${myconfiguration.baseUrl}/pawpal/assets/uploads/$firstImage',
+                                      child: Image.network( // load image from network
+                                        imageUrl,
                                         fit: BoxFit.cover,
+                                        loadingBuilder:
+                                            (context, child, loadingProgress) {
+                                          if (loadingProgress == null) return child;
+                                          return const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        },
                                         errorBuilder:
                                             (context, error, stackTrace) {
-                                              return const Icon(
+                                          return Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: const [
+                                              Icon(
                                                 Icons.broken_image,
                                                 size: 60,
                                                 color: Colors.grey,
-                                              );
-                                            },
+                                              ),
+                                              SizedBox(height: 6),
+                                              Text(
+                                                'Failed to load image',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
                                       ),
                                     ),
                                   ),

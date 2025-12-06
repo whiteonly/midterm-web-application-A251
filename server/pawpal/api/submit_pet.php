@@ -29,7 +29,8 @@
 
 		// create unique filename
 		$filename = "pet_" . time() . "_" . $index . ".png";
-		$filepath = "../../assets/uploads/pet_" . $filename;
+		// Save file using the filename exactly as stored in DB
+		$filepath = "../../assets/uploads/" . $filename;
 
 		// save image file
 		file_put_contents($filepath, $imgData);
