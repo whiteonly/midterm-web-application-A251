@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:pawpal/models/petsubmittion.dart';
 import 'package:pawpal/models/user.dart';
 import 'package:pawpal/myconfiguration.dart';
@@ -21,12 +20,11 @@ class Mainscreen extends StatefulWidget {
 class _MainscreenState extends State<Mainscreen> {
   List<Petsubmittion> listSubmissions = [];
   String status = "Loading...";
-  DateFormat formatter = DateFormat('dd/MM/yyyy hh:mm a');
   late double screenWidth, screenHeight;
-  int numofpage = 1;
-  int curpage = 1;
-  int numofresult = 0;
-  var color;
+  int numofpage = 1;// total number of pages
+  int curpage = 1;// current page
+  int numofresult = 0;// total number of results
+  
   
   @override
   void initState() {
@@ -57,18 +55,21 @@ class _MainscreenState extends State<Mainscreen> {
           ),
         ),
         actions: [
+          // search button
           IconButton(
             icon: Icon(Icons.search, color: Colors.white),
             onPressed: () {
               showSearchDialog();
             },
           ),
+          // refresh button
           IconButton(
             onPressed: () {
               loadServices('');
             },
             icon: Icon(Icons.refresh, color: Colors.white),
           ),
+          // home button
           IconButton(
             onPressed: () {
               Navigator.push(
@@ -86,6 +87,7 @@ class _MainscreenState extends State<Mainscreen> {
           child: Column(
             children: [
               listSubmissions.isEmpty
+                    // if no submissions - it will show status message
                   ? Expanded(
                       child: Center(
                         child: Column(
@@ -105,26 +107,22 @@ class _MainscreenState extends State<Mainscreen> {
                         ),
                       ),
                     )
+                    // if there are submissions - it will show them in listviews
                   : Expanded(
                       child: ListView.builder(
                         itemCount: listSubmissions.length,
                         itemBuilder: (BuildContext context, int index) {
                           String imgPaths = listSubmissions[index].image_paths ?? "";
-                          List<String> imgs = imgPaths.split(",");
-
+                          List<String> imgs = imgPaths.split(",");// split image paths received into list
                           String firstImage;
-                          if (imgs.isNotEmpty && imgs[0].isNotEmpty) {
+                          if (imgs.isNotEmpty && imgs[0].isNotEmpty) {// check if first image path is not empty
                             firstImage = imgs[0].trim(); // trim() removes any spaces
-                            
                             // Extract filename if it's a full path
-                            firstImage = firstImage.split('\\').last.split('/').last;
-                          } else {
+                            firstImage = firstImage.split('\\').last.split('/').last;// handles both Windows and Unix-style paths
+                          } else {// if first image path is empty
                             firstImage = "default.png";
                           }
-
-                          // Debug output
-
-                          return Card(
+                          return Card(// each submission displayed in a card
                             elevation: 4,
                             margin: const EdgeInsets.symmetric(
                               vertical: 6,
@@ -152,7 +150,7 @@ class _MainscreenState extends State<Mainscreen> {
                                         ),
                                       ),
 
-                                      child: Image.network(
+                                      child: Image.network(// load image from network
                                         '${myconfiguration.baseUrl}/pawpal/assets/uploads/$firstImage',
                                         fit: BoxFit.cover,
                                         errorBuilder:
@@ -167,12 +165,12 @@ class _MainscreenState extends State<Mainscreen> {
                                     ),
                                   ),
                                   const SizedBox(width: 12),
-                                  Expanded(
+                                  Expanded(// details column from each submission
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        // Name
+                                        // Name text
                                         Text(
                                           listSubmissions[index].pet_name
                                               .toString(),
@@ -187,7 +185,7 @@ class _MainscreenState extends State<Mainscreen> {
 
                                         const SizedBox(height: 4),
 
-                                        // type
+                                        // type text
                                         Text(
                                           listSubmissions[index].pet_type
                                               .toString(),
@@ -199,7 +197,7 @@ class _MainscreenState extends State<Mainscreen> {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                         const SizedBox(height: 6),
-                                        // category
+                                        // category text
                                         Text(
                                           listSubmissions[index].category
                                               .toString(),
@@ -213,7 +211,7 @@ class _MainscreenState extends State<Mainscreen> {
                                         ),
                                         const SizedBox(height: 6),
 
-                                        // description
+                                        // description text
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 8,
@@ -326,7 +324,7 @@ class _MainscreenState extends State<Mainscreen> {
           });
         });
   }
-  void showSearchDialog() {
+  void showSearchDialog() {// show search dialog for submission search
     TextEditingController searchController = TextEditingController();
     showDialog(
       context: context,
@@ -338,12 +336,14 @@ class _MainscreenState extends State<Mainscreen> {
             decoration: InputDecoration(hintText: 'Enter search query'),
           ),
           actions: [
+            //cancel button 
             TextButton(
               child: Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
+            //search buttons
             TextButton(
               child: Text('Search'),
               onPressed: () {

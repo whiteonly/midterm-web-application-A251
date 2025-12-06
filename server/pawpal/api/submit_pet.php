@@ -1,13 +1,13 @@
 <?php
 	header("Access-Control-Allow-Origin: *");
 	include 'pawpaldbconnection.php';
-
+	// Check if the request method is POST
 	if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 		http_response_code(405);
 		echo json_encode(array('error' => 'Method Not Allowed'));
 		exit();
 	}
-
+	// Retrieve and sanitize POST parameters
 	$user_id = ($_POST['user_id']);
 	$pet_name = addslashes($_POST['pet_name']);
 	$pet_type = addslashes($_POST['pet_type']);

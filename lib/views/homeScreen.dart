@@ -11,29 +11,23 @@ class Homescreen extends StatefulWidget {
   @override
   State<Homescreen> createState() => _HomescreenState();
 }
-
+        // Display user's name after login successful
 class _HomescreenState extends State<Homescreen> {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
       body: Center(
-        
-        // Display user's name after login successful
         child :Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
-
+            ElevatedButton(// submit a submission
               onPressed: () {
-              // Add your onPressed code here!
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) =>  SubmitPet(user: widget.user),
-
                   ),
                 );
-
               },
               style: ElevatedButton.styleFrom(
               backgroundColor: const Color.fromARGB(255, 191, 165, 35),
@@ -42,18 +36,15 @@ class _HomescreenState extends State<Homescreen> {
               child: const Text('add  submission',
               style: TextStyle(fontSize: 18, color: Colors.white),),  
             ),
-            SizedBox(height: 20,), // Add some spacing between buttons
-            ElevatedButton(
+            SizedBox(height: 20,),
+            ElevatedButton(// view submission
               onPressed: () {
-              // Add your onPressed code here!
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) =>  Mainscreen(user: widget.user),
-
                   ),
                 );
-
               },
               style: ElevatedButton.styleFrom(
               backgroundColor: const Color.fromARGB(255, 191, 165, 35),
@@ -61,12 +52,8 @@ class _HomescreenState extends State<Homescreen> {
               ),
               child: const Text('view all submissions',
               style: TextStyle(fontSize: 18, color: Colors.white),),  
-              
             ),
         ],)
-
-     
-        
       ),
     );
   }

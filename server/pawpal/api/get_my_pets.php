@@ -4,12 +4,13 @@ header("Access-Control-Allow-Origin: *"); // running as chrome app
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     include 'pawpaldbconnection.php';
     
-    $results_per_page = 10;
+    $results_per_page = 10; // number of results per page
     if ( isset( $_GET[ 'curpage' ] ) ) {
         $curpage = ( int )$_GET[ 'curpage' ];
     } else {
         $curpage = 1;
     }
+    // Determine the sql LIMIT starting number for the results on the displaying page
     $page_first_result = ( $curpage - 1 ) * $results_per_page;
 
     // Base JOIN query
@@ -53,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     $sqlloadservices .= " LIMIT $page_first_result, $results_per_page";
     $result = $conn->query($sqlloadservices);
-
+    // Prepare and send response
     if ($result && $result->num_rows > 0) {
         $Petdata = array();
         while ($row = $result->fetch_assoc()) {
