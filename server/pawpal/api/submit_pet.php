@@ -42,7 +42,8 @@
 	$image_paths = implode(",", $final_image_paths);
 
 	// Insert new service into database
-	$sqlinsertservice = "INSERT INTO `tbl_pets`(`user_id`, `pet_name`, `pet_type`, `category`, `description`, `image_paths`, `lat`, `lng`) 
+	$sqlinsertservice = "INSERT INTO `tbl_pets`(`user_id`, `pet_name`, `pet_type`, `category`, `description`,
+	 `image_paths`, `lat`, `lng`) 
 	VALUES ('$user_id','$pet_name','$pet_type','$category','$description','$image_paths','$lat','$lng')";
 	try{
 		if ($conn->query($sqlinsertservice) === TRUE){
