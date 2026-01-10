@@ -1,15 +1,6 @@
 <?php
 header("Access-Control-Allow-Origin: *"); // running on local host can access from any origin
 
-// $servername = "localhost";
-// $username = "root";
-// $password = "";
-// $dbname = "pawpal_db";
-
-// $conn = new mysqli($servername, $username, $password, $dbname);
-// if ($conn->connect_error) {
-//     die("Connection failed: " . $conn->connect_error);
-// }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {//check request method
     if (!isset($_POST['email']) || !isset($_POST['password'])) {// check email and password are set and not null
@@ -42,9 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {//check request method
     sendJsonResponse($response);
     exit();
 }
-
-
-
 
 function sendJsonResponse($sentArray)
 {

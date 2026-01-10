@@ -26,80 +26,47 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
     loadDonations();
   }
 
-  Future<void> loadDonations() async {
+  Future<void> loadDonations() async {// load user donations from server
     setState(() {
       isLoading = true;
       errorMessage = '';
     });
-
-    try {
-      final url = '${myconfiguration.baseUrl}/pawpal/pawpal/api/get_user_donations.php?user_id=${widget.user!.userId}';
-      print('DEBUG: Requesting URL: $url');
-      print('DEBUG: User ID: ${widget.user!.userId}');
-      
-      final response = await http.get(Uri.parse(url));
-
-      print('DEBUG: Response status code: ${response.statusCode}');
-      print('DEBUG: Response body: ${response.body}');
-
+    final url = '${myconfiguration.baseUrl}/pawpal/pawpal/api/get_user_donations.php?user_id=${widget.user!.userId}';
+    http.get(Uri.parse(url)).then((response) {
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
-        print('DEBUG: Decoded JSON: $jsonResponse');
-        
         if (jsonResponse['status'] == 'success') {
-          donations.clear();
-          
-          if (jsonResponse['data'] != null && jsonResponse['data'].isNotEmpty) {
-            print('DEBUG: Number of donations in response: ${jsonResponse['data'].length}');
-            
-            for (var item in jsonResponse['data']) {
-              print('DEBUG: Processing item: $item');
-              try {
-                final donation = Donation.fromJson(item);
-                print('DEBUG: Created donation: $donation');
-                donations.add(donation);
-              } catch (e) {
-                print('ERROR: Failed to parse donation: $e');
-                print('ERROR: Item data: $item');
-              }
-            }
-            
-            print('DEBUG: Total donations loaded: ${donations.length}');
-          } else {
-            print('DEBUG: No data in response or data is empty');
-          }
-          
-          setState(() {
+          setState(() {// update donations list
+            donations = (jsonResponse['data'] as List)
+                .map((item) => Donation.fromJson(item))
+                .toList();
             isLoading = false;
           });
         } else {
-          print('DEBUG: Response status is not success: ${jsonResponse['status']}');
-          setState(() {
+          setState(() {// handle no donations or error message
             isLoading = false;
             errorMessage = jsonResponse['message'] ?? 'No donations found';
           });
         }
       } else {
-        print('ERROR: HTTP error ${response.statusCode}');
         setState(() {
           isLoading = false;
-          errorMessage = 'Failed to load donations (HTTP ${response.statusCode})';
+          errorMessage = 'HTTP Error: ${response.statusCode}';
         });
       }
-    } catch (e) {
-      print('ERROR: Exception loading donations: $e');
+    }).catchError((error) {
       setState(() {
         isLoading = false;
-        errorMessage = 'Error: $e';
+        errorMessage = 'Connection Error: $error';
       });
-    }
-  }
+    });
+      }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F0),
-      appBar: AppBar(
+      appBar: AppBar(// app bar with title and refresh button
         backgroundColor: const Color(0xFFA18B1D),
         foregroundColor: Colors.white,
         title: const Text(
@@ -107,7 +74,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
-          IconButton(
+          IconButton(//refresh button
             icon: const Icon(Icons.refresh),
             onPressed: loadDonations,
           ),
@@ -120,6 +87,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
               ),
             )
           : donations.isEmpty
+          // no donations case in the database
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -130,7 +98,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
                         color: Colors.grey[400],
                       ),
                       const SizedBox(height: 16),
-                      Text(
+                      Text(// display error message or no donations message
                         errorMessage.isEmpty ? 'No donations yet' : errorMessage,
                         style: TextStyle(
                           fontSize: 18,
@@ -139,7 +107,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
-                      Text(
+                      Text(// display user id for reference
                         'User ID: ${widget.user!.userId}',
                         style: TextStyle(
                           fontSize: 12,
@@ -149,7 +117,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
                     ],
                   ),
                 )
-              : RefreshIndicator(
+              : RefreshIndicator(// donations list with pull to refresh
                   color: const Color(0xFFA18B1D),
                   onRefresh: loadDonations,
                   child: Column(
@@ -162,7 +130,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            Text(// donations count
                               '${donations.length} ${donations.length == 1 ? 'Donation' : 'Donations'}',
                               style: const TextStyle(
                                 fontSize: 18,
@@ -170,7 +138,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
                                 color: Color(0xFFA18B1D),
                               ),
                             ),
-                            _buildTotalAmount(),
+                            _buildTotalAmount(),// total money donations amount
                           ],
                         ),
                       ),
@@ -183,35 +151,27 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
                           itemBuilder: (context, index) {
                             final donation = donations[index];
                             final isMoneyDonation = donation.donationType == 'Money';
-                            
                             print('DEBUG: Building list item $index: ${donation.donationType}, Amount: ${donation.amount}');
-                            
-                            // Parse date
                             DateTime? donationDateTime;
-                            try {
-                              donationDateTime = DateTime.parse(donation.donationDate ?? '');
-                            } catch (e) {
-                              donationDateTime = null;
-                            }
-
-                            return Card(
+                            donationDateTime = DateTime.parse(donation.donationDate ?? ''); // parse donation date
+                            return Card(// donation details
                               margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                               elevation: 2,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: ListTile(
+                              child: ListTile(//donation list tile
                                 contentPadding: const EdgeInsets.all(12),
                                 leading: CircleAvatar(
                                   backgroundColor: _getDonationTypeColor(donation.donationType).withOpacity(0.2),
                                   child: Icon(
-                                    _getDonationTypeIcon(donation.donationType),
-                                    color: _getDonationTypeColor(donation.donationType),
+                                    _getDonationTypeIcon(donation.donationType),// icon based on donation type
+                                    color: _getDonationTypeColor(donation.donationType),// color based on donation type
                                   ),
                                 ),
                                 title: Row(
                                   children: [
-                                    Text(
+                                    Text(// donation type title
                                       '${donation.donationType ?? 'Unknown'} Donation',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
@@ -219,14 +179,14 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    if (isMoneyDonation && donation.amount != null)
+                                    if (isMoneyDonation && donation.amount != null)// show amount for money donations
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFFA18B1D),
                                           borderRadius: BorderRadius.circular(12),
                                         ),
-                                        child: Text(
+                                        child: Text(// formatted amount text
                                           'RM ${donation.amount}',
                                           style: const TextStyle(
                                             color: Colors.white,
@@ -237,12 +197,12 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
                                       ),
                                   ],
                                 ),
-                                subtitle: Column(
+                                subtitle: Column(// donation description and pet id
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const SizedBox(height: 4),
                                     if (donation.description != null && donation.description!.isNotEmpty)
-                                      Text(
+                                      Text(// description text
                                         donation.description!,
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
@@ -253,7 +213,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
                                       children: [
                                         const Icon(Icons.pets, size: 14, color: Colors.grey),
                                         const SizedBox(width: 4),
-                                        Text(
+                                        Text(// pet id text
                                           'Pet ID: ${donation.petId ?? 'N/A'}',
                                           style: TextStyle(
                                             fontSize: 12,
@@ -268,19 +228,15 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    Text(
-                                      donationDateTime != null
-                                          ? DateFormat('dd/MM/yyyy').format(donationDateTime)
-                                          : 'N/A',
+                                    Text(// formatted donation date
+                                      DateFormat('dd/MM/yyyy').format(donationDateTime),
                                       style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    Text(
-                                      donationDateTime != null
-                                          ? DateFormat('hh:mm a').format(donationDateTime)
-                                          : '',
+                                    Text(// formatted donation time
+                                      DateFormat('hh:mm a').format(donationDateTime),
                                       style: TextStyle(
                                         fontSize: 10,
                                         color: Colors.grey[600],
@@ -288,7 +244,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
                                     ),
                                   ],
                                 ),
-                                onTap: () => _showDonationDetails(donation),
+                                onTap: () => _showDonationDetails(donation),// show donation details on tap
                               ),
                             );
                           },
@@ -300,7 +256,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
     );
   }
 
-  Widget _buildTotalAmount() {
+  Widget _buildTotalAmount() {// calculate and display total money donations how much user has donated
     double total = 0;
     int moneyCount = 0;
     
@@ -310,16 +266,14 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
         moneyCount++;
       }
     }
-    
     if (moneyCount == 0) return const SizedBox.shrink();
-    
-    return Container(
+    return Container(// return total amount widget
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: const Color(0xFFA18B1D).withOpacity(0.1),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(
+      child: Text(// formatted total amount
         'Total: RM ${total.toStringAsFixed(2)}',
         style: const TextStyle(
           fontSize: 14,
@@ -330,7 +284,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
     );
   }
 
-  Color _getDonationTypeColor(String? type) {
+  Color _getDonationTypeColor(String? type) {// icon shown in donation list
     switch (type) {
       case 'Money':
         return const Color(0xFFA18B1D);
@@ -343,7 +297,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
     }
   }
 
-  IconData _getDonationTypeIcon(String? type) {
+  IconData _getDonationTypeIcon(String? type) {// icon shown in donation list
     switch (type) {
       case 'Money':
         return Icons.attach_money;
@@ -356,15 +310,10 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
     }
   }
 
-  void _showDonationDetails(Donation donation) {
+  void _showDonationDetails(Donation donation) {// show donation details in bottom sheet
     DateTime? donationDateTime;
-    try {
-      donationDateTime = DateTime.parse(donation.donationDate ?? '');
-    } catch (e) {
-      donationDateTime = null;
-    }
-
-    showModalBottomSheet(
+    donationDateTime = DateTime.parse(donation.donationDate ?? '');
+    showModalBottomSheet(// bottom sheet for donation details
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -391,7 +340,6 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
                   ),
                 ),
               ),
-              
               // Title
               const Text(
                 'Donation Details',
@@ -401,20 +349,15 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
                   color: Color(0xFFA18B1D),
                 ),
               ),
-              
               const SizedBox(height: 20),
-              
               // Details
-              _detailRow('Donation ID', donation.donationId),
-              _detailRow('Pet ID', donation.petId),
-              _detailRow('Type', donation.donationType),
-              
-              if (donation.donationType == 'Money' && donation.amount != null)
+              _detailRow('Donation ID', donation.donationId),// detailed rows for donation information
+              _detailRow('Pet ID', donation.petId),// pet id row
+              _detailRow('Type', donation.donationType),// donation type row
+              if (donation.donationType == 'Money' && donation.amount != null)// amount row for money donations
                 _detailRow('Amount', 'RM ${donation.amount}'),
-              
-              if (donation.description != null && donation.description!.isNotEmpty)
+              if (donation.description != null && donation.description!.isNotEmpty)// description row if available
                 _detailRow('Description', donation.description),
-              
               _detailRow('Donor Name', donation.donorName),
               _detailRow('Email', donation.donorEmail),
               _detailRow('Phone', donation.donorPhone),
@@ -424,13 +367,11 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
                     ? formatter.format(donationDateTime)
                     : donation.donationDate ?? 'N/A'
               ),
-              
               const SizedBox(height: 20),
-              
               // Close button
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: ElevatedButton(// close button to dismiss bottom sheet
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFA18B1D),
                     foregroundColor: Colors.white,
@@ -456,7 +397,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
     );
   }
 
-  Widget _detailRow(String label, String? value) {
+  Widget _detailRow(String label, String? value) {// reusable detail row widget for ui customisable
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(

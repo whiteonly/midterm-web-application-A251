@@ -410,7 +410,9 @@ class _loginScreenState extends State<loginScreen> {
       Uri.parse('${myconfiguration.baseUrl}/pawpal/pawpal/api/login_user.php'),
       body: {'email': email, 'password': password},
     ).then((response) {
+      // Handle server response
       if (response.statusCode == 200) {
+        // Successful response
         var jsonResponse = response.body;
         var resarray = jsonDecode(jsonResponse);
         log(jsonResponse.toString() + response.statusCode.toString() + "response".toString() + resarray.toString());
@@ -418,6 +420,7 @@ class _loginScreenState extends State<loginScreen> {
           user = User.fromJson(resarray['data'][0]);
           if (!mounted) return;
           log("succeess".toString());
+          // Show success message snackbar
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("Login successful"),
@@ -426,6 +429,7 @@ class _loginScreenState extends State<loginScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
           );
+          // Navigate to main screen with user data
           Navigator.pop(context);
           Navigator.pushReplacement(
             context,
@@ -434,7 +438,9 @@ class _loginScreenState extends State<loginScreen> {
             ),
           );
         } else {
+          // Login failed, show error message from server
           if (!mounted) return;
+          // Show failure message snackbar
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(resarray['message']),
@@ -445,6 +451,7 @@ class _loginScreenState extends State<loginScreen> {
           );
         }
       } else {
+        // Server error response
         if (!mounted) return;
         log("failed".toString() + response.statusCode.toString() + "response".toString() + response.body.toString());
         ScaffoldMessenger.of(context).showSnackBar(

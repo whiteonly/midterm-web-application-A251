@@ -1,6 +1,6 @@
 <?php
 include_once("pawpaldbconnection.php");
-
+//get data from user input
 $pet_id = $_POST['pet_id'];
 $user_id = $_POST['user_id'];
 $donation_type = $_POST['donation_type'];

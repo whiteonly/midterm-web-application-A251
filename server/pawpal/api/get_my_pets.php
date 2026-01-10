@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     // Determine the sql LIMIT starting number for the results on the displaying page
     $page_first_result = ( $curpage - 1 ) * $results_per_page;
 
-    // Base JOIN query
+    // Base JOIN query to get pet and user details and profile image
     $baseQuery = "
     SELECT 
         s.pet_id,
@@ -26,6 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         s.lat,
         s.lng,
         s.created_at,
+        s.age,
+        s.gender,
+        s.health,
         u.name,
         u.email,
         u.phone,
@@ -49,10 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     // Execute query
     $result = $conn->query($sqlloadservices);
-    $number_of_result = $result->num_rows;
-    $number_of_page = ceil( $number_of_result / $results_per_page );
-
-    $sqlloadservices .= " LIMIT $page_first_result, $results_per_page";
+    $number_of_result = $result->num_rows;//total number of results
+    $number_of_page = ceil( $number_of_result / $results_per_page );//total number of pages
+    $sqlloadservices .= " LIMIT $page_first_result, $results_per_page";//limit the number of rows returned
     $result = $conn->query($sqlloadservices);
     // Prepare and send response
     if ($result && $result->num_rows > 0) {

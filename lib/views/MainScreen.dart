@@ -38,7 +38,7 @@ class _MainscreenState extends State<Mainscreen> {
   @override
   void initState() {
     super.initState();
-    loadServices('');
+    loadServices('');// refresh web for listing updates
   }
 
   @override
@@ -51,6 +51,7 @@ class _MainscreenState extends State<Mainscreen> {
 
     return Scaffold(
       backgroundColor: Color(0xFFF5F5F0),
+      // UI for bookmark bar that consists of menu, title, filter, search, refresh, login
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Color(0xFFA18B1D),
@@ -58,11 +59,12 @@ class _MainscreenState extends State<Mainscreen> {
         elevation: 0,
         title: Row(
           children: [
+            // Menu button to open drawer
             Builder(
             builder: (innerContext) => IconButton(
               icon: const Icon(Icons.menu),
               onPressed: () {
-                Scaffold.of(innerContext).openDrawer();   // safe
+                Scaffold.of(innerContext).openDrawer(); 
               },
             ),
             ),
@@ -79,12 +81,11 @@ class _MainscreenState extends State<Mainscreen> {
           ],
         ),
         actions: [
-          
           // Filter button (opens dialog)
           IconButton(
             icon: Icon(Icons.filter_list, size: 26),
             onPressed: () {
-              showFilterDialog();
+              showFilterDialog();//filter function
             },
             tooltip: 'Filter by pet type',
           ),
@@ -101,24 +102,26 @@ class _MainscreenState extends State<Mainscreen> {
                 child: Text(selectedPetType, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ),
+            // Search button (opens dialog) - search by using name
           IconButton(
             icon: Icon(Icons.search, size: 26),
             onPressed: () {
-              showSearchDialog();
+              showSearchDialog();//search function that search based on name of the pet
             },
             tooltip: 'Search',
           ),
-          IconButton(
+          // 
+          IconButton(// Refresh button to reload all services
             onPressed: () {
               setState(() {
                 selectedPetType = 'All';
               });
-              loadServices('');
+              loadServices('');// reload all services
             },
             icon: Icon(Icons.refresh, size: 26),
             tooltip: 'Refresh',
           ),
-          IconButton(
+          IconButton(// Login button to navigate to login screen without user name and password (sign in)
             onPressed: () {
               Navigator.push(
                 context,
@@ -138,7 +141,7 @@ class _MainscreenState extends State<Mainscreen> {
           width: screenWidth,
           child: Column(
             children: [
-              // Header with result count
+              // check if submissions is empty after load all services
               if (listSubmissions.isNotEmpty)
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -152,7 +155,7 @@ class _MainscreenState extends State<Mainscreen> {
                       ),
                     ],
                   ),
-                  child: Row(
+                  child: Row(// show number of submissions and current page info (pagination)
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
@@ -173,7 +176,7 @@ class _MainscreenState extends State<Mainscreen> {
                     ],
                   ),
                 ),
-
+              // Display either no submissions message or the list of submissions
               listSubmissions.isEmpty
                   ? Expanded(
                       child: Center(
@@ -193,6 +196,7 @@ class _MainscreenState extends State<Mainscreen> {
                                   ),
                                 ],
                               ),
+                              // icon for no submissions - only pet icon
                               child: Icon(
                                 Icons.pets,
                                 size: 80,
@@ -200,6 +204,7 @@ class _MainscreenState extends State<Mainscreen> {
                               ),
                             ),
                             SizedBox(height: 24),
+                            // message for no submissions
                             Text(
                               status,
                               textAlign: TextAlign.center,
@@ -210,6 +215,7 @@ class _MainscreenState extends State<Mainscreen> {
                               ),
                             ),
                             SizedBox(height: 8),
+                            // sub-message for no submissions
                             Text(
                               'Your pet submissions will appear here',
                               style: TextStyle(
@@ -221,11 +227,13 @@ class _MainscreenState extends State<Mainscreen> {
                         ),
                       ),
                     )
+                    // list of submissions when there is submissions
                   : Expanded(
                     child: ListView.builder(
                     padding: EdgeInsets.all(12),
                     itemCount: listSubmissions.length,
                     itemBuilder: (BuildContext context, int index) {
+                      //saperate the images from the database
                       String imgPaths = listSubmissions[index].image_paths ?? "";
                       List<String> imgs = imgPaths.split(",");
                       String firstImage;
@@ -235,15 +243,13 @@ class _MainscreenState extends State<Mainscreen> {
                       } else {
                         firstImage = "default.png";
                       }
-
                       // Debug logging
                       print('DEBUG: image_paths from DB = $imgPaths');
                       print('DEBUG: firstImage after extraction = $firstImage');
-
                       final imageUrl = '${myconfiguration.baseUrl}/pawpal/assets/uploads/pet_${listSubmissions[index].pet_id}_1.png';
                       print('Image URL: $imageUrl');
 
-                      return Card(
+                      return Card(// each card for each submission consists of first image, category badge, pet name, pet type with icon, description
                         elevation: 2,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -252,18 +258,8 @@ class _MainscreenState extends State<Mainscreen> {
                         clipBehavior: Clip.antiAlias, // Ensures children respect the border radius
                         child: InkWell(
                           onTap: () {
-                            // Add your click handler here
                             print('Card tapped: ${listSubmissions[index].pet_name}');
-                            showDetailsDialog(index);
-                            // Example: Navigate to detail page
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (context) => PetDetailScreen(
-                            //       petData: listSubmissions[index],
-                            //     ),
-                            //   ),
-                            // );
+                            showDetailsDialog(index);// show details dialog when the card
                           },
                           borderRadius: BorderRadius.circular(16),
                           splashColor: Color(0xFFA18B1D).withOpacity(0.1),
@@ -537,13 +533,13 @@ class _MainscreenState extends State<Mainscreen> {
       drawer: MyDrawer(user: widget.user),
     );
   }
-
-    void showDetailsDialog(int index) {// need change
+    // show details dialog for each submission provides detailed information and contact options after clicked
+    void showDetailsDialog(int index) {
     final submission = listSubmissions[index];
     final formattedDate = formatter.format(
       DateTime.parse(submission.userRegdate.toString()),
     );
-
+    // show modal bottom sheet for details dialog
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -554,7 +550,7 @@ class _MainscreenState extends State<Mainscreen> {
           minChildSize: 0.6,
           maxChildSize: 0.95,
           builder: (_, controller) {
-            return Container(
+            return Container(// the frame of the details dialog
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -565,8 +561,7 @@ class _MainscreenState extends State<Mainscreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // DRAG HANDLE
-                    Center(
+                    Center(// the top bar of the dialog
                       child: Container(
                         width: 40,
                         height: 4,
@@ -577,8 +572,7 @@ class _MainscreenState extends State<Mainscreen> {
                         ),
                       ),
                     ),
-
-                    // IMAGE
+                    // images1 of the pet submission
                     ClipRRect(
                       borderRadius: BorderRadius.circular(14),
                       child: AspectRatio(
@@ -598,6 +592,7 @@ class _MainscreenState extends State<Mainscreen> {
                       ),
                     ),
                     const SizedBox(height: 2),
+                    // images2 of the pet submission
                     ClipRRect(
                       borderRadius: BorderRadius.circular(14),
                       child: AspectRatio(
@@ -617,6 +612,7 @@ class _MainscreenState extends State<Mainscreen> {
                       ),
                     ),
                     const SizedBox(height: 2),
+                    // images3 of the pet submission
                     ClipRRect(
                       borderRadius: BorderRadius.circular(14),
                       child: AspectRatio(
@@ -635,10 +631,8 @@ class _MainscreenState extends State<Mainscreen> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 16),
-
-                    // TITLE
+                    // pet name section
                     Text(
                       submission.pet_name.toString(),
                       style: const TextStyle(
@@ -646,10 +640,8 @@ class _MainscreenState extends State<Mainscreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     const SizedBox(height: 6),
-
-                    // DISTRICT + RATE
+                    // location and date chips
                     Row(
                       children: [
                         _chip(
@@ -663,36 +655,31 @@ class _MainscreenState extends State<Mainscreen> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 14),
-
-                    // DESCRIPTION
+                    // description section
                     Text(
                       submission.description.toString(),
                       style: const TextStyle(fontSize: 15),
                     ),
+                    // additional info section such as age, gender, health
                     Text(
                       "${submission.age},${submission.gender},${submission.health}",
                       style: const TextStyle(fontSize: 15),
                     ),
-
                     const SizedBox(height: 20),
-
                     const Divider(),
-
-                    // INFO SECTION
+                    // information rows for pet type, posted on, provider, phone, email
                     _infoRow("Pet Type", submission.pet_type),
                     _infoRow("Posted On", formattedDate),
                     _infoRow("Provider", submission.userName),
                     _infoRow("Phone", submission.userPhone),
                     _infoRow("Email", submission.userEmail),
-
                     const SizedBox(height: 20),
-
-                    // CONTACT ACTIONS
+                    // action icons for call, message, email, wechat
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
+                        // action icon widget call
                         _actionIcon(
                           Icons.call,
                           () => launchUrl(
@@ -700,6 +687,7 @@ class _MainscreenState extends State<Mainscreen> {
                             mode: LaunchMode.externalApplication,
                           ),
                         ),
+                        // action icon widget sms
                         _actionIcon(
                           Icons.message,
                           () => launchUrl(
@@ -707,6 +695,7 @@ class _MainscreenState extends State<Mainscreen> {
                             mode: LaunchMode.externalApplication,
                           ),
                         ),
+                        // action icon widget email
                         _actionIcon(
                           Icons.email,
                           () => launchUrl(
@@ -714,6 +703,7 @@ class _MainscreenState extends State<Mainscreen> {
                             mode: LaunchMode.externalApplication,
                           ),
                         ),
+                        // action icon widget whatsapp
                         _actionIcon(
                           Icons.wechat,
                           () => launchUrl(
@@ -723,9 +713,10 @@ class _MainscreenState extends State<Mainscreen> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 20),
+                    // adopt pet button or donate button based on category type
                     if(listSubmissions[index].category == "Adoption")
+                    // if the submission is adoption
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFFFFA726),
@@ -737,7 +728,7 @@ class _MainscreenState extends State<Mainscreen> {
                         ),
                       ),
                       onPressed: () async {
-                        if (widget.user?.userId == '0') {
+                        if (widget.user?.userId == '0') {// check if user is logged in
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text("Please login or register first"),
@@ -748,11 +739,10 @@ class _MainscreenState extends State<Mainscreen> {
                             context,
                             MaterialPageRoute(builder: (_) => loginScreen()),
                           );
-                        } else {
+                        } else {// proceed with adoption request
                           final TextEditingController motivationController = TextEditingController();
                           bool isConfirmed = false;
-                          
-                          await showDialog(
+                          await showDialog(// show motivation dialog before adoption request
                             context: context,
                             builder: (dialogContext) => AlertDialog(
                               title: const Text('Adoption Request'),
@@ -820,12 +810,11 @@ class _MainscreenState extends State<Mainscreen> {
                                   'motivation': motivationController.text.trim(),
                                 },
                               )
-                              .then((response) {
-                              
+                              .then((response) {// send adoption request to server
                               if (response.statusCode == 200) {
                                 final result = jsonDecode(response.body);
-                                
-                                if (result['status'] == 'success') {
+                                if (result['status'] == 'success') {// if success show success message
+                                    if (!mounted) return;
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text('Adoption request submitted successfully!'),
@@ -834,7 +823,7 @@ class _MainscreenState extends State<Mainscreen> {
                                   );
                                   adoptionRequests.add(AdoptionRequest.fromJson(result['adoption_request']));
                                   Navigator.pop(context); // Close the bottom sheet
-                                } else {
+                                } else {// if failed show error message
                                     if (!mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -862,7 +851,7 @@ class _MainscreenState extends State<Mainscreen> {
                         
                       ),
                     ),
-                    if(listSubmissions[index].category != "Adoption")
+                    if(listSubmissions[index].category != "Adoption")// if the submission is donation
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFFA18B1D),
@@ -874,7 +863,7 @@ class _MainscreenState extends State<Mainscreen> {
                         ),
                       ),
                       onPressed: () {
-                        if (widget.user?.userId == '0') {
+                        if (widget.user?.userId == '0') {// check if user is logged in
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text("Please login or register first"),
@@ -910,7 +899,7 @@ class _MainscreenState extends State<Mainscreen> {
     );
   }
 
-  void loadServices(String searchQuery) {
+  void loadServices(String searchQuery) {// load services from server with optional search query
     allSubmissions.clear();
     listSubmissions.clear();
     setState(() {
@@ -922,7 +911,7 @@ class _MainscreenState extends State<Mainscreen> {
             '${myconfiguration.baseUrl}/pawpal/pawpal/api/get_my_pets.php?search=$searchQuery&curpage=$curpage',
           ),
         )
-        .then((response) {
+        .then((response) {// send get request to server
           if (response.statusCode == 200) {
             var jsonResponse = jsonDecode(response.body);
             log(jsonResponse.toString());
@@ -942,10 +931,8 @@ class _MainscreenState extends State<Mainscreen> {
                   petTypes.add(t);
                 }
               }
-
               // Apply current filter
               applyFilter();
-
               numofpage = int.parse(jsonResponse['numofpage'].toString());
               numofresult = listSubmissions.length;
               print(numofpage);
@@ -959,7 +946,7 @@ class _MainscreenState extends State<Mainscreen> {
                 allSubmissions.clear();
                 status = "Not Available";
               });
-              if (mounted) {
+              if (mounted) {// show dialog if no submissions found
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
@@ -995,7 +982,7 @@ class _MainscreenState extends State<Mainscreen> {
   }
 
   void applyFilter() {
-    setState(() {
+    setState(() {// apply filter based on selected pet type
       if (selectedPetType == 'All' || selectedPetType.isEmpty) {
         listSubmissions = List.from(allSubmissions);
       } else {
@@ -1006,7 +993,7 @@ class _MainscreenState extends State<Mainscreen> {
       curpage = 1;
     });
   }
-
+  // filter dialog where it filter by pet type
   void showFilterDialog() {
     String tempSelected = selectedPetType;
     showDialog(
@@ -1076,7 +1063,7 @@ class _MainscreenState extends State<Mainscreen> {
       },
     );
   }
-
+  // search dialog where it search by pet name
   void showSearchDialog() {
     TextEditingController searchController = TextEditingController();
     showDialog(
@@ -1093,6 +1080,7 @@ class _MainscreenState extends State<Mainscreen> {
               Text('Search Submissions'),
             ],
           ),
+          // text field for search pet name
           content: TextField(
             controller: searchController,
             decoration: InputDecoration(
@@ -1109,6 +1097,7 @@ class _MainscreenState extends State<Mainscreen> {
             ),
           ),
           actions: [
+            // cancel button to close dialog
             TextButton(
               child: Text(
                 'Cancel',
@@ -1118,6 +1107,7 @@ class _MainscreenState extends State<Mainscreen> {
                 Navigator.of(context).pop();
               },
             ),
+            // search button to perform search
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFA18B1D),
@@ -1129,9 +1119,11 @@ class _MainscreenState extends State<Mainscreen> {
               child: Text('Search'),
               onPressed: () {
                 String search = searchController.text;
+                //if search is empty load all services
                 if (search.isEmpty) {
                   loadServices('');
                 } else {
+                // perform search using pet name
                   loadServices(search);
                 }
                 Navigator.of(context).pop();
@@ -1143,7 +1135,7 @@ class _MainscreenState extends State<Mainscreen> {
     );
   }
 
-   Widget _chip(IconData icon, String text) {
+   Widget _chip(IconData icon, String text) {// chip widget for location and date
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
@@ -1161,7 +1153,7 @@ class _MainscreenState extends State<Mainscreen> {
     );
   }
 
-  Widget _infoRow(String label, String? value) {
+  Widget _infoRow(String label, String? value) {// information row widget for details dialog
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -1183,7 +1175,7 @@ class _MainscreenState extends State<Mainscreen> {
     );
   }
 
-  Widget _actionIcon(IconData icon, VoidCallback onTap) {
+  Widget _actionIcon(IconData icon, VoidCallback onTap) {// action icon widget for call, sms, email, wechat
     return InkResponse(
       onTap: onTap,
       radius: 28,
@@ -1262,12 +1254,9 @@ void _showDonationDialog(BuildContext context, String petId, String petName) {
                 );
                 return;
               }
-              
               Navigator.pop(context); // Close dialog first
-              
               // Handle donation based on type
               if (selectedType == 'Money') {
-              
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -1280,7 +1269,6 @@ void _showDonationDialog(BuildContext context, String petId, String petName) {
                   ),
                 );
                 loadServices('');
-                
               } else {
                 // For Food/Medical donations, directly record to database
                 await _recordDonation(
@@ -1289,7 +1277,6 @@ void _showDonationDialog(BuildContext context, String petId, String petName) {
                   description: descriptionController.text,
                   petName: petName, // Use the passed petName parameter
                 );
-                
                 loadServices('');
               }
             },

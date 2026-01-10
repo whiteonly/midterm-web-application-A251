@@ -16,11 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         exit();
     }
 
-    if (isset($_GET['user_id']) && !empty($_GET['user_id'])) {
-        $user_id = $conn->real_escape_string($_GET['user_id']);
-        
-        error_log("DEBUG: Fetching donations for user_id: $user_id");
-        
+    if (isset($_GET['user_id']) && !empty($_GET['user_id'])) {// Check if user_id is provided
+        $user_id = $conn->real_escape_string($_GET['user_id']);// Sanitize input
         // Query matches your exact table structure
         $sqlloadDonations = "SELECT 
             donation_id,
@@ -36,11 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         FROM tbl_donations 
         WHERE user_id = '$user_id' 
         ORDER BY donation_date DESC";
-
-        error_log("DEBUG: SQL Query: $sqlloadDonations");
-
-        $result = $conn->query($sqlloadDonations);
-
+        $result = $conn->query($sqlloadDonations);// Execute query
         if ($result === false) {
             error_log("ERROR: Query failed: " . $conn->error);
             sendJsonResponse([
@@ -49,8 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             ]);
             exit();
         }
-
-        $number_of_result = $result->num_rows;
+        $number_of_result = $result->num_rows;// Get number of results
         error_log("DEBUG: Number of results: $number_of_result");
 
         if ($number_of_result > 0) {
@@ -66,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
                 $row['pet_id'] = strval($row['pet_id']);
                 $row['user_id'] = strval($row['user_id']);
                 
-                $Donationdata[] = $row;
+                $Donationdata[] = $row;// Append each row to the data array
                 error_log("DEBUG: Row data: " . json_encode($row));
             }
             
@@ -75,18 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
                 'data' => $Donationdata, 
                 'numberofresult' => $number_of_result
             );
-            error_log("DEBUG: Sending success response with " . count($Donationdata) . " donations");
             sendJsonResponse($response);
-        } else {
-            error_log("DEBUG: No donations found for user_id: $user_id");
-            $response = array(
-                'status' => 'failed', 
-                'data' => null, 
-                'numberofresult' => 0,
-                'message' => 'No donations found for this user'
-            );
-            sendJsonResponse($response);
-        }
+        } 
     } else {
         error_log("ERROR: No user_id provided");
         $response = array(

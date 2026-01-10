@@ -25,10 +25,10 @@ class _SplashPageState extends State<SplashPage> {
     autologin();
   }
 
-  void autologin() {
+  void autologin() {//check if user had choose to rememberme
     SharedPreferences.getInstance().then((prefs) {
       bool? rememberMe = prefs.getBool('rememberMe');
-      if (rememberMe != null && rememberMe) {
+      if (rememberMe != null && rememberMe) {//user had choose to rememberme
         email = prefs.getString('email') ?? 'NA';
         password = prefs.getString('password') ?? 'NA';
         http
@@ -39,10 +39,8 @@ class _SplashPageState extends State<SplashPage> {
             .then((response) {
               if (response.statusCode == 200) {
                 var jsonResponse = response.body;
-                // print(jsonResponse);
                 var resarray = jsonDecode(jsonResponse);
                 if (resarray['status'] == 'success') {
-                  //print(resarray['data'][0]);
                   User user = User.fromJson(resarray['data'][0]);
                   if (!mounted) return;
                   Future.delayed(Duration(seconds: 2), () {
@@ -54,7 +52,7 @@ class _SplashPageState extends State<SplashPage> {
                       ),
                     );
                   });
-                } else {
+                } else {//login as guest
                   Future.delayed(Duration(seconds: 3), () {
                     if (!mounted) return;
                     User user = User(
@@ -74,7 +72,7 @@ class _SplashPageState extends State<SplashPage> {
                     );
                   });
                 }
-              } else {
+              } else {//login as guest
                 Future.delayed(Duration(seconds: 3), () {
                   if (!mounted) return;
                   User user = User(
@@ -155,9 +153,7 @@ class _SplashPageState extends State<SplashPage> {
                 color: Color.fromARGB(255, 176, 149, 13),
               ),
             ),
-
             const SizedBox(height: 24),
-
             // APP NAME
             const Text(
               "Pawpal",
@@ -168,17 +164,13 @@ class _SplashPageState extends State<SplashPage> {
                 letterSpacing: 1.2,
               ),
             ),
-
             const SizedBox(height: 8),
-
             // TAGLINE
             const Text(
               "everything can be settle",
               style: TextStyle(fontSize: 16, color: Colors.white70),
             ),
-
             const SizedBox(height: 40),
-
             // LOADING INDICATOR
             const CircularProgressIndicator(
               color: Colors.white,

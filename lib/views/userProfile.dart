@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -104,7 +103,7 @@ class _UserprofileState extends State<Userprofile> {
   if (response.statusCode == 200) {
     final data = jsonDecode(response.body);
     
-    if (data['status'] == 'success') {
+    if (data['status'] == 'success') {// Profile updated successfully
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('profile_name', nameController.text.trim());
       await prefs.setString('profile_phone', phoneController.text.trim());
@@ -114,13 +113,13 @@ class _UserprofileState extends State<Userprofile> {
         await prefs.setString('profile_photo', data['image_url']);
       }
       
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(// Success
         const SnackBar(
           content: Text('Profile and image saved successfully'),
           backgroundColor: Colors.green,
         ),
       );
-    } else {
+    } else {// Server returned failure
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(data['message'] ?? 'Profile update failed'),
@@ -172,7 +171,7 @@ class _UserprofileState extends State<Userprofile> {
     return Scaffold(
       appBar: AppBar(
         leading: Builder(
-            builder: (innerContext) => IconButton(
+            builder: (innerContext) => IconButton(// to open drawer safely
               icon: const Icon(Icons.menu),
               onPressed: () {
                 Scaffold.of(innerContext).openDrawer();   // safe
@@ -182,7 +181,7 @@ class _UserprofileState extends State<Userprofile> {
         title: const Text('Profile'),
         centerTitle: true,
       ),
-      drawer: MyDrawer(user: widget.user),
+      drawer: MyDrawer(user: widget.user),// pass user to drawer
       body: Center(
         child: SizedBox(
           width: MediaQuery.of(context).size.width > 500
@@ -191,8 +190,8 @@ class _UserprofileState extends State<Userprofile> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              _sectionTitle('Profile'),
-              _card(
+              _sectionTitle('Profile'),// profile section
+              _card(// profile card to save profile image and details
                 children: [
                   Center(
                     child: Stack(
@@ -220,9 +219,9 @@ class _UserprofileState extends State<Userprofile> {
                       ],
                     ),
                   ),
-                  _field(label: 'Name', icon: Icons.person, controller: nameController),
-                  _field(label: 'Email', icon: Icons.email, controller: emailController, enabled: false),
-                  _field(label: 'Phone', icon: Icons.phone, controller: phoneController, type: TextInputType.phone),
+                  _field(label: 'Name', icon: Icons.person, controller: nameController),// name field
+                  _field(label: 'Email', icon: Icons.email, controller: emailController, enabled: false),// email field (disabled)
+                  _field(label: 'Phone', icon: Icons.phone, controller: phoneController, type: TextInputType.phone),// phone field
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: ElevatedButton.icon(
@@ -233,8 +232,6 @@ class _UserprofileState extends State<Userprofile> {
                   ),
                 ],
               ),
-
-              
             ],
           ),
         ),
@@ -243,7 +240,7 @@ class _UserprofileState extends State<Userprofile> {
   }
 
   /* ---------------- UI helpers ---------------- */
-  Widget _sectionTitle(String title) => Padding(
+  Widget _sectionTitle(String title) => Padding(//
         padding: const EdgeInsets.only(bottom: 8),
         child: Text(title,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)));
@@ -253,7 +250,7 @@ class _UserprofileState extends State<Userprofile> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Column(children: children));
 
-  Widget _field(
+  Widget _field(// reusable text field - name / email / phone
           {required String label,
           required IconData icon,
           required TextEditingController controller,

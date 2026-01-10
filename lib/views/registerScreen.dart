@@ -322,7 +322,7 @@ class _registerScreenState extends State<registerScreen> {
     );
   }
 
-  Widget _buildTextField({
+  Widget _buildTextField({//Text field UI design
     required TextEditingController controller,
     required String label,
     required IconData icon,
@@ -359,13 +359,13 @@ class _registerScreenState extends State<registerScreen> {
     );
   }
 
-  void registerNotification() {
+  void registerNotification() {// Validate inputs and show confirmation dialog
     String email = emailController.text.trim();
     String name = nameController.text.trim();
     String phone = phoneController.text.trim();
     String password = passwordController.text.trim();
     String confirmPassword = confirmPasswordController.text.trim();
-
+    // empty field validation
     if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty || name.isEmpty || phone.isEmpty) {
       SnackBar snackBar = const SnackBar(
         content: Text('Please fill in all fields'),
@@ -373,7 +373,7 @@ class _registerScreenState extends State<registerScreen> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
-
+    // password length validation > 6
     if (password.length < 6) {
       SnackBar snackBar = const SnackBar(
         content: Text('Password must be at least 6 characters long'),
@@ -381,7 +381,7 @@ class _registerScreenState extends State<registerScreen> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
-
+    // phone number validation numeric only
     if (!RegExp(r'^[0-9]+$').hasMatch(phone)) {
       SnackBar snackBar = const SnackBar(
         content: Text('Please enter a valid phone number'),
@@ -389,7 +389,7 @@ class _registerScreenState extends State<registerScreen> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
-
+    // password match validation
     if (password != confirmPassword) {
       SnackBar snackBar = const SnackBar(
         content: Text('Passwords do not match'),
@@ -397,7 +397,7 @@ class _registerScreenState extends State<registerScreen> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
-
+    // email format validation for gmail and yahoo only
     if (!RegExp(r'^[\w-\.]+@(gmail|yahoo)(\.[A-Za-z]{2,3})+$').hasMatch(email)) {
       SnackBar snackBar = const SnackBar(
         content: Text('Please enter a valid personal email address (gmail or yahoo)'),
@@ -405,7 +405,7 @@ class _registerScreenState extends State<registerScreen> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
-
+    // show confirmation dialog
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -418,7 +418,7 @@ class _registerScreenState extends State<registerScreen> {
           ],
         ),
         content: Text('Are you sure you want to register this account?'),
-        actions: [
+        actions: [// Cancel and Register buttons
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
@@ -439,13 +439,13 @@ class _registerScreenState extends State<registerScreen> {
       ),
     );
   }
-
+  // Register user function with HTTP POST request
   void registerUser(String email, String password, String name, String phone) async {
     setState(() {
       isLoading = true;
     });
     
-    showDialog(
+    showDialog(// show loading dialog
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -469,7 +469,7 @@ class _registerScreenState extends State<registerScreen> {
       },
       barrierDismissible: false,
     );
-
+    // HTTP POST request to register user
     await http
         .post(
           Uri.parse('${myconfiguration.baseUrl}/pawpal/pawpal/api/register_user.php'),
@@ -486,8 +486,9 @@ class _registerScreenState extends State<registerScreen> {
         var jsonResponse = response.body;
         var resarray = jsonDecode(jsonResponse);
         log(jsonResponse);
+        // check registration status
         if (resarray['status'] == 'success') {
-          if (!mounted) return;
+          if (!mounted) return;// registration successful
           SnackBar snackBar = const SnackBar(
             content: Text('Registration successful'),
           );
@@ -505,18 +506,18 @@ class _registerScreenState extends State<registerScreen> {
             MaterialPageRoute(builder: (context) => loginScreen()),
           );
         } else {
-          if (!mounted) return;
+          if (!mounted) return;// registration failed with message
           SnackBar snackBar = SnackBar(content: Text(resarray['message']));
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
       } else {
-        if (!mounted) return;
+        if (!mounted) return;// registration failed
         SnackBar snackBar = const SnackBar(
           content: Text('Registration failed. Please try again.'),
         );
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
-    }).timeout(
+    }).timeout(// timeout handling
       Duration(seconds: 10),
       onTimeout: () {
         if (!mounted) return;
