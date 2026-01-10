@@ -5,6 +5,8 @@ class User {//create a class User for API response from backend(php) and fronten
   String? userPassword;
   String? userPhone;
   String? userRegdate;
+  String? profilePicture;
+  int? userCredit;
 
   User(
       {this.userId,
@@ -12,7 +14,10 @@ class User {//create a class User for API response from backend(php) and fronten
       this.userName,
       this.userPassword,
       this.userPhone,
-      this.userRegdate});
+      this.userRegdate,
+      this.profilePicture,
+      this.userCredit
+      });
 
   User.fromJson(Map<String, dynamic> json) {//map json data to user model
     userId = json['user_id'];
@@ -21,6 +26,8 @@ class User {//create a class User for API response from backend(php) and fronten
     userPassword = json['password'];
     userPhone = json['phone'];
     userRegdate = json['reg_date'];
+    profilePicture = json['profile_img'];
+    userCredit = json['user_credit'];
   }
 
   Map<String, dynamic> toJson() {
@@ -31,6 +38,8 @@ class User {//create a class User for API response from backend(php) and fronten
     data['password'] = userPassword;
     data['phone'] = userPhone;
     data['reg_date'] = userRegdate;
+    data['profile_img'] = profilePicture;
+    data['user_credit'] = userCredit;
     return data;
   }
 }

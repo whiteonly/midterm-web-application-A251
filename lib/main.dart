@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pawpal/views/welcomeScreen.dart';
+import 'package:pawpal/views/splashpage.dart';
 void main() {
   runApp(const MyApp()); 
 }
@@ -27,6 +27,6 @@ class _MyHomePageState extends State<MyHomePage> {//
 
   @override
   Widget build(BuildContext context) { 
-    return  Welcomescreen();
+    return SplashPage();
   }
 }

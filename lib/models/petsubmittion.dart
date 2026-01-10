@@ -9,7 +9,9 @@ class Petsubmittion {
   String? lat;
   String? lng;
   String? created_at;
-
+  String? age; // new data
+  String? gender; // new data
+  String? health; // new data
 
   // Added user info
   String? userName;
@@ -32,6 +34,9 @@ class Petsubmittion {
     this.userEmail,
     this.userPhone,
     this.userRegdate,
+    this.age, // new data
+    this.gender, // new data
+    this.health, // new data
   });
 
   Petsubmittion.fromJson(Map<String, dynamic> json) {
@@ -45,6 +50,9 @@ class Petsubmittion {
     lat = json['lat'];
     lng = json['lng'];
     created_at = json['created_at'];
+    age = json['age']; // new data
+    gender = json['gender']; // new data
+    health = json['health']; // new data
 
     // Mapping user fields
     userName = json['name'];
@@ -65,7 +73,9 @@ class Petsubmittion {
     data['lat'] = lat;
     data['lng'] = lng;
     data['created_at'] = created_at;
-
+    data['age'] = age; // new data
+    data['gender'] = gender; //new data
+    data['health'] = health; // new data
     data['name'] = userName;
     data['email'] = userEmail;
     data['phone'] = userPhone;

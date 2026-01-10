@@ -6,6 +6,7 @@ import 'package:pawpal/myconfiguration.dart';
 import 'package:pawpal/views/loginScreen.dart';
 import 'package:pawpal/views/welcomeScreen.dart';
 import 'package:http/http.dart' as http;
+
 class registerScreen extends StatefulWidget {
   const registerScreen({super.key});
 
@@ -29,195 +30,342 @@ class _registerScreenState extends State<registerScreen> {
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
     developer.log('Width: $width', name: 'registerScreen');
-    //width = 1536
-    if (width > 400) {
-      width = 400;
-    } else {
-      width = width;
-    }
+    
+    double formWidth = width > 400 ? 400 : width;
+
     return Scaffold(
+      backgroundColor: Color(0xFFF5F5F0),
       appBar: AppBar(
         centerTitle: true,
-        title: Text('Register Account',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            )),
-        backgroundColor: const Color.fromARGB(255, 234, 216, 129),
+        elevation: 0,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.person_add, size: 28, color: Colors.white),
+            SizedBox(width: 12),
+            Text(
+              'Create Account',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Color(0xFFA18B1D),
       ),
       body: Center(
         child: SingleChildScrollView(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              
-              Image.asset('assets/images/registration.jpg', fit: BoxFit.cover,height: 400), //insert image
-              SizedBox(width: 40),
-              Column(
-                children: [
-                  Padding(
-                padding: const EdgeInsets.all(4.0),
-              ),
-              
-              SizedBox(height: 20),
-              SizedBox(//email TextField
-                width: width * 0.8,
-                child: TextField(
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              SizedBox(//name TextField
-                width: width * 0.8,
-                child: TextField(
-                  controller: nameController,
-                  keyboardType: TextInputType.name,
-                  decoration: InputDecoration(
-                    labelText: 'Name',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              SizedBox(//phone TextField
-                width: width * 0.8,
-                child: TextField(
-                  controller: phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    labelText: 'Phone Number',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              SizedBox(//password TextField
-                width: width * 0.8,
-                child: TextField(
-                  controller: passwordController,
-                  obscureText: visible,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    suffixIcon: IconButton(//to show/hide password
-                      onPressed: () {
-                        setState(() {
-                          visible = !visible;
-                        });
-                      },
-                      icon: Icon(visible ? Icons.visibility : Icons.visibility_off),
-                    ),
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              SizedBox(//confirm password TextField
-                width: width * 0.8,
-                child: TextField(
-                  controller: confirmPasswordController,
-                  obscureText: visible,
-                  decoration: InputDecoration(
-                    labelText: 'Confirm Password',
-                    suffixIcon: IconButton(//to show/hide password at the same time with password field 
-                      onPressed: () {
-                        setState(() {
-                          visible = !visible;//same variable as password field if change can change both fields security
-                        });
-                      },
-                      icon: Icon(visible ? Icons.visibility : Icons.visibility_off),
-                    ),
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(//register button
-                    onPressed: () {
-                      developer.log('Register button pressed');
-                      // Call the registerNotification function
-                      registerNotification();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 191, 165, 35),
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    ),
-                    child: const Text(
-                      'Register',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 30),
-                  ElevatedButton(//cancel button
-                    onPressed: () {
-                      // Handle cancellation logic here
-                      print('Cancel button pressed');
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const Welcomescreen(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 40),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Left Image
+                if (width > 900)
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 20,
+                          offset: Offset(0, 8),
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 191, 165, 35),
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      ],
                     ),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.asset(
+                        'assets/images/registration.jpg',
+                        fit: BoxFit.cover,
+                        height: 450,
                       ),
                     ),
                   ),
-                ],
-              ),
-              SizedBox(height: 16),
-              TextButton(//login redirect button when clicked to login account page
-                onPressed: () {
-                  // Navigate to a login page; LoginPage is defined below as a simple placeholder.
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const loginScreen(),
+                
+                if (width > 900) SizedBox(width: 50),
+                
+                // Form Container
+                Container(
+                  width: formWidth * 0.9,
+                  padding: EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 30,
+                        offset: Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Welcome Text
+                      Text(
+                        'Join PawPal',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFA18B1D),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Create your account to get started',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      SizedBox(height: 32),
+
+                      // Email Field
+                      _buildTextField(
+                        controller: emailController,
+                        label: 'Email Address',
+                        icon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      SizedBox(height: 16),
+
+                      // Name Field
+                      _buildTextField(
+                        controller: nameController,
+                        label: 'Full Name',
+                        icon: Icons.person_outline,
+                        keyboardType: TextInputType.name,
+                      ),
+                      SizedBox(height: 16),
+
+                      // Phone Field
+                      _buildTextField(
+                        controller: phoneController,
+                        label: 'Phone Number',
+                        icon: Icons.phone_outlined,
+                        keyboardType: TextInputType.phone,
+                      ),
+                      SizedBox(height: 16),
+
+                      // Password Field
+                      _buildTextField(
+                        controller: passwordController,
+                        label: 'Password',
+                        icon: Icons.lock_outline,
+                        obscureText: visible,
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              visible = !visible;
+                            });
+                          },
+                          icon: Icon(
+                            visible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                            color: Color(0xFFA18B1D),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+
+                      // Confirm Password Field
+                      _buildTextField(
+                        controller: confirmPasswordController,
+                        label: 'Confirm Password',
+                        icon: Icons.lock_outline,
+                        obscureText: visible,
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              visible = !visible;
+                            });
+                          },
+                          icon: Icon(
+                            visible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                            color: Color(0xFFA18B1D),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 28),
+
+                      // Register Button
+                      ElevatedButton(
+                        onPressed: () {
+                          developer.log('Register button pressed');
+                          registerNotification();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFFA18B1D),
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                        ),
+                        child: Text(
+                          'Create Account',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 12),
+
+                      // Cancel Button
+                      OutlinedButton(
+                        onPressed: () {
+                          print('Cancel button pressed');
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const Welcomescreen(),
+                            ),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Color(0xFFA18B1D),
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(color: Color(0xFFA18B1D), width: 2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+
+                      // Login Link
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Already have an account? ',
+                            style: TextStyle(
+                              color: Colors.grey[700],
+                              fontSize: 14,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const loginScreen(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              'Login here',
+                              style: TextStyle(
+                                color: Color(0xFFA18B1D),
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                
+                if (width > 900) SizedBox(width: 50),
+                
+                // Right Image
+                if (width > 900)
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 20,
+                          offset: Offset(0, 8),
+                        ),
+                      ],
                     ),
-                  );
-                },
-                child: const Text('Already have an account? Login here'),
-              ),
-                ]
-              ), 
-              SizedBox(width: 40),
-              Image.asset('assets/images/registration2.jpg', fit: BoxFit.cover,height: 400),//insert image
-            ],
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.asset(
+                        'assets/images/registration2.jpg',
+                        fit: BoxFit.cover,
+                        height: 450,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType? keyboardType,
+    bool obscureText = false,
+    Widget? suffixIcon,
+  }) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      style: TextStyle(fontSize: 15),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.grey[600]),
+        prefixIcon: Icon(icon, color: Color(0xFFA18B1D)),
+        suffixIcon: suffixIcon,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey[300]!),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey[300]!),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Color(0xFFA18B1D), width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.grey[50],
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      ),
+    );
+  }
+
   void registerNotification() {
-    // Validate input fields and to avoid the registration from penetration
     String email = emailController.text.trim();
     String name = nameController.text.trim();
     String phone = phoneController.text.trim();
-    String password = passwordController.text.trim(); 
+    String password = passwordController.text.trim();
     String confirmPassword = confirmPasswordController.text.trim();
-    // Check for empty fields
+
     if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty || name.isEmpty || phone.isEmpty) {
       SnackBar snackBar = const SnackBar(
         content: Text('Please fill in all fields'),
@@ -225,7 +373,7 @@ class _registerScreenState extends State<registerScreen> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
-    // Password length validation atleast 6 characters
+
     if (password.length < 6) {
       SnackBar snackBar = const SnackBar(
         content: Text('Password must be at least 6 characters long'),
@@ -233,15 +381,15 @@ class _registerScreenState extends State<registerScreen> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
-    // Phone number validation more than 7 - 10 digits and only numbers are allowed
-    if(!RegExp(r'^[0-9]+$').hasMatch(phone)) {
+
+    if (!RegExp(r'^[0-9]+$').hasMatch(phone)) {
       SnackBar snackBar = const SnackBar(
         content: Text('Please enter a valid phone number'),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
-    // Check if passwords match
+
     if (password != confirmPassword) {
       SnackBar snackBar = const SnackBar(
         content: Text('Passwords do not match'),
@@ -249,132 +397,142 @@ class _registerScreenState extends State<registerScreen> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
-    // Email format validation for gmail and yahoo only
+
     if (!RegExp(r'^[\w-\.]+@(gmail|yahoo)(\.[A-Za-z]{2,3})+$').hasMatch(email)) {
-      //(\.[A-Za-z]{2,3}) - it accept three character after dot like .com / .com.my 
       SnackBar snackBar = const SnackBar(
         content: Text('Please enter a valid personal email address (gmail or yahoo)'),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
-    showDialog(//confirmation dialog before registering the account to the database
+
+    showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Register this account?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.check_circle_outline, color: Color(0xFFA18B1D), size: 28),
+            SizedBox(width: 12),
+            Text('Confirm Registration'),
+          ],
+        ),
+        content: Text('Are you sure you want to register this account?'),
         actions: [
           TextButton(
-              onPressed: () {
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+          ),
+          ElevatedButton(
+            onPressed: () {
               Navigator.pop(context);
               log('Before registering user with email: $email');
-              registerUser(email, password, name, phone);//call register user function to register the account
+              registerUser(email, password, name, phone);
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFFA18B1D),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
             child: Text('Register'),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
-          ),
-        ], 
-    )
+        ],
+      ),
     );
   }
-  
-  //function to register user account to database
+
   void registerUser(String email, String password, String name, String phone) async {
     setState(() {
-      isLoading = true;// show loading indicator
+      isLoading = true;
     });
-    showDialog(context: context,
-     builder: (context) {
-       return AlertDialog(
-        content: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-         children :[
-            CircularProgressIndicator(),// loading indicator
-            SizedBox(width: 20),
-            SizedBox(//loading text
-              width: 200, 
-              child: Text(
-                'Registering user...', 
+    
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: Color(0xFFA18B1D)),
+              SizedBox(height: 20),
+              Text(
+                'Creating your account...',
                 style: TextStyle(
-                  fontSize: 24,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.none
-                  )
-                  )
-            ),
-         ] 
-        ),
-       );
-     },
-     barrierDismissible: false,// prevent closing the dialog by tapping outside
-     );
-      await http//register user to database
+                  fontSize: 16,
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      barrierDismissible: false,
+    );
+
+    await http
         .post(
           Uri.parse('${myconfiguration.baseUrl}/pawpal/pawpal/api/register_user.php'),
-          body: {//user details
-          'email': email,
-          'password': password, 
-          'name': name, 
-          'phone': phone}
-          )
-          .then((response) {//successful connection to server
-            log("succeess".toString());
-            if (response.statusCode == 200) {
-              var jsonResponse = response.body;
-              var resarray = jsonDecode(jsonResponse);
-              log(jsonResponse);
-              if (resarray['status'] == 'success') {
-                if (!mounted) return;
-                SnackBar snackBar = const SnackBar(
-                  content: Text('Registration successful'),
-                );
-                if (isLoading) {
-                  if (!mounted) return;
-                  Navigator.pop(context); // Close the loading dialog
-                  setState(() {
-                    isLoading = false;// stop loading indicator
-                  });
-                }
-              Navigator.pop(context); // Close the registration dialog
-              ScaffoldMessenger.of(context).showSnackBar(snackBar);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => loginScreen ()),// redirect to login screen after successful registration
-              );
-                } else {// registration failed
-                  if (!mounted) return;
-                  SnackBar snackBar = SnackBar(content: Text(resarray['message']));
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                }
-            } else {// failed to connect to server
-                if (!mounted) return;
-                SnackBar snackBar = const SnackBar(
-                  content: Text('Registration failed. Please try again.'),
-                );
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-              }
-            })
-            .timeout(
-              Duration(seconds: 10),
-              onTimeout: () {
-                if (!mounted) return;
-                SnackBar snackBar = const SnackBar(
-                  content: Text('Request timed out. Please try again.'),
-                );
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-              },
-            );
-
+          body: {
+            'email': email,
+            'password': password,
+            'name': name,
+            'phone': phone
+          },
+        )
+        .then((response) {
+      log("success".toString());
+      if (response.statusCode == 200) {
+        var jsonResponse = response.body;
+        var resarray = jsonDecode(jsonResponse);
+        log(jsonResponse);
+        if (resarray['status'] == 'success') {
+          if (!mounted) return;
+          SnackBar snackBar = const SnackBar(
+            content: Text('Registration successful'),
+          );
           if (isLoading) {
             if (!mounted) return;
-            Navigator.pop(context); // Close the loading dialog
+            Navigator.pop(context);
             setState(() {
               isLoading = false;
             });
           }
-            }
-            
-  }//registerUser
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => loginScreen()),
+          );
+        } else {
+          if (!mounted) return;
+          SnackBar snackBar = SnackBar(content: Text(resarray['message']));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }
+      } else {
+        if (!mounted) return;
+        SnackBar snackBar = const SnackBar(
+          content: Text('Registration failed. Please try again.'),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    }).timeout(
+      Duration(seconds: 10),
+      onTimeout: () {
+        if (!mounted) return;
+        SnackBar snackBar = const SnackBar(
+          content: Text('Request timed out. Please try again.'),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      },
+    );
+
+    if (isLoading) {
+      if (!mounted) return;
+      Navigator.pop(context);
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+}

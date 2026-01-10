@@ -19,7 +19,7 @@
 	$phone = ($_POST['phone']);
 	$password = $_POST['password'];
 	$hashedpassword = sha1($password);
-
+	$credit = 5;
 	// Check if email already exists / duplication
 	$sqlcheckmail = "SELECT * FROM `tbl_users` WHERE `email` = '$email'";
 	$result = $conn->query($sqlcheckmail);
@@ -30,8 +30,8 @@
 	}
 
 	//Insert new user into database
-	$sqlregister = "INSERT INTO tbl_users (email, name, password, phone) 
-        VALUES ('$email', '$name', '$hashedpassword', '$phone')";
+	$sqlregister = "INSERT INTO tbl_users (email, name, password, phone, user_credit) 
+        VALUES ('$email', '$name', '$hashedpassword', '$phone', $credit)";
 	try{//check registration success or not
 		if ($conn->query($sqlregister) === true){
 			$response = array('status' => 'success', 'message' => 'Registration successful');

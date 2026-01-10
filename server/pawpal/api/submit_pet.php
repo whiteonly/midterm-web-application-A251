@@ -15,49 +15,48 @@
 	$lat = $_POST['lat'];
 	$lng = $_POST['lng'];
 	$description = addslashes($_POST['description']);
-	$image_paths_raw  = $_POST['image_paths'];
+	$age = $_POST['age'];
+	$gender = $_POST['gender'];
+	$health = $_POST['health'];
 
-	// Split multiple images using your "|||" separator
-	$image_list = explode("|||", $image_paths_raw);
-
-	$final_image_paths = []; // filenames to save into ONE column
-
-	foreach ($image_list as $index => $imgBase64) {
-		if (strlen($imgBase64) < 5) continue; // skip empty
-
-		$imgData = base64_decode($imgBase64);
-
-		// create unique filename
-		$filename = "pet_" . time() . "_" . $index . ".png";
-		// Save file using the filename exactly as stored in DB
-		$filepath = "../../assets/uploads/" . $filename;
-
-		// save image file
-		file_put_contents($filepath, $imgData);
-
-		// store filename only
-		$final_image_paths[] = $filename;
+	$images = []; 
+	for ($i = 1; $i <= 3; $i++) {
+		if (isset($_POST['image'.$i]) && !empty($_POST['image'.$i])) {
+			$images[] = base64_decode($_POST['image'.$i]);
+		}
 	}
-
-	$image_paths = implode(",", $final_image_paths);
 
 	// Insert new service into database
-	$sqlinsertservice = "INSERT INTO `tbl_pets`(`user_id`, `pet_name`, `pet_type`, `category`, `description`,
-	 `image_paths`, `lat`, `lng`) 
-	VALUES ('$user_id','$pet_name','$pet_type','$category','$description','$image_paths','$lat','$lng')";
-	try{
+	$sqlinsertservice = "INSERT INTO `tbl_pets`(`user_id`, `pet_name`, `pet_type`, `category`, `description`, `lat`, `lng`, `age`, `gender`, `health`) 
+	VALUES ('$user_id','$pet_name','$pet_type','$category','$description','$lat','$lng','$age','$gender','$health')";
+		try{
 		if ($conn->query($sqlinsertservice) === TRUE){
-			
-			$response = array('status' => 'success', 'message' => 'Pet submitted successfully');
+			$last_id = $conn->insert_id;
+			$imagePaths = [];
+
+			// Save each image file
+			foreach ($images as $index => $img) {
+				$imgIndex = $index + 1;
+				$path = "../../assets/uploads/pet_{$last_id}_{$imgIndex}.png";
+				file_put_contents($path, $img);
+				$imagePaths[] = "pawpal/assets/uploads/pet_{$last_id}_{$imgIndex}.png";
+			}
+
+			// Save image paths in DB as JSON (so you can have multiple images)
+			$imagePathsJson = json_encode($imagePaths);
+			$sqlupdateimage = "UPDATE tbl_pets SET image_paths='$imagePathsJson' WHERE pet_id='$last_id'";
+			$conn->query($sqlupdateimage);
+
+			$response = array('status' => 'success', 'message' => 'Pet Submission added successfully');
 			sendJsonResponse($response);
 		}else{
-			$response = array('status' => 'failed', 'message' => 'Pet submitted not added');
+			$response = array('status' => 'failed', 'message' => 'Pet submisson not added');
 			sendJsonResponse($response);
 		}
-	}catch(Exception $e){
-		$response = array('status' => 'failed', 'message' => $e->getMessage());
-		sendJsonResponse($response);
-	}
+		}catch(Exception $e){
+			$response = array('status' => 'failed', 'message' => $e->getMessage());
+			sendJsonResponse($response);
+		}
 
 
 //	function to send json response	

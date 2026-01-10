@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         exit();
     }
     $userid = $_GET['userid'];
-    include 'dbconnect.php';
+    include 'pawpaldbconnection.php';
     $sqlgetuser = "SELECT * FROM `tbl_pets` WHERE `user_id` = '$userid'";
     $result = $conn->query($sqlgetuser);
     if ($result->num_rows > 0) {

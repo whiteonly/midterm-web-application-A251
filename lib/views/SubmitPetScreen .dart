@@ -10,7 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:geocode/geocode.dart';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:pawpal/views/homeScreen.dart';
+import 'MainScreen.dart';
 
 class SubmitPet extends StatefulWidget {
   final User? user;
@@ -32,13 +32,30 @@ class _SubmitPetState extends State<SubmitPet> {
     'Donation Request',
     'Help/Rescue',
   ];
-
+  List<String> petAge = [
+    'Baby',
+    'Young',
+    'Adult',
+    'Senior',
+  ];
+  List<String> petGender = [
+    'Male',
+    'Female',
+  ];
+  List<String> petHealthStatus = [
+    'Healthy',
+    'Special Needs',
+  ];
+  // dont forgot to add gender, age, health later
+  
   TextEditingController petNameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   String selectedPetType = 'Cat';
   String selectedCategory = 'Adoption';
-  String selectedLocation = 'Alor Tajar';
+  String selectedAge = 'Baby';
+  String selectedGender = 'Male';
+  String selectedHealth = 'Healthy';
   late Position myposition;
   late Coordinates coordinates;
   File? image;
@@ -140,6 +157,112 @@ class _SubmitPetState extends State<SubmitPet> {
                     ],
                   ),
                   SizedBox(height: 16.0),
+                  Row(// new row for age, gender, health
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<String> (
+                        decoration: InputDecoration(
+                          labelText: 'Select Pet Age',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),
+                          filled: true,
+                          fillColor: Color.fromARGB(255, 234, 213, 110),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select a pet age'; // Error message
+                          }
+                          return null; // Return null if valid
+                        },
+                        autovalidateMode: AutovalidateMode.onUserInteraction, // Auto validate
+                        value: selectedAge,
+                        items: petAge.map((String petAge) {
+                          return DropdownMenuItem<String>(
+                            value: petAge,
+                            child: Text(petAge),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedAge = newValue!;
+                            print(selectedAge);
+                          });
+                        },
+                        ),
+                      ),
+                      SizedBox(width: 16.0),// need changes
+                      Expanded(
+                      child : DropdownButtonFormField<String>(
+                        decoration: InputDecoration(
+                          labelText: 'Select Pet Gender',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),
+                          filled: true,
+                          fillColor: Color.fromARGB(255, 234, 213, 110),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select a gender'; // Error message
+                          }
+                          return null; // Return null if valid
+                        },
+                        autovalidateMode: AutovalidateMode.onUserInteraction, // Auto validate
+                        value: selectedGender,
+                        items: petGender.map((String gender) {
+                          return DropdownMenuItem<String>(
+                            value: gender,
+                            child: Text(gender),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedGender = newValue!;
+                            print(selectedGender);
+                          });
+                        },
+                      ),
+                      ),
+                      SizedBox(width: 16.0),
+                      Expanded(
+                      child : DropdownButtonFormField<String>(
+                        decoration: InputDecoration(
+                          labelText: 'Select Pet Health Status',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),
+                          filled: true,
+                          fillColor: Color.fromARGB(255, 234, 213, 110),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select a health status'; // Error message
+                          }
+                          return null; // Return null if valid
+                        },
+                        autovalidateMode: AutovalidateMode.onUserInteraction, // Auto validate
+                        value: selectedHealth,
+                        items: petHealthStatus.map((String healthStatus) {
+                          return DropdownMenuItem<String>(
+                            value: healthStatus,
+                            child: Text(healthStatus),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedHealth = newValue!;
+                            print(selectedHealth);
+                          });
+                        },
+                      ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16.0),
                   TextField(
                     controller: descriptionController,
                     decoration: InputDecoration(
@@ -192,207 +315,99 @@ class _SubmitPetState extends State<SubmitPet> {
                       ),
                     ),
                   SizedBox(height: 16.0),
-                  Row(
-                    children: [
-                      Expanded( // 1st image
-                        child: GestureDetector(
-                          onTap: () {
-                            int currentCount = kIsWeb ? webImages.length : images.length;
-                            if (currentCount >= maxImages) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Maximum $maxImages images allowed")),
-                              );
-                              return;
-                            }
-                            if (kIsWeb) {
-                              openGallery();
-                            } else {
-                              pickimagedialog();
-                            }
-                          },
-                          child: Container(
-                            width: 300,
-                            height: 180,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.grey.shade200,
-                              border: Border.all(color: Colors.grey.shade400),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                              image: (!kIsWeb && images.length > 0)
-                                  ? DecorationImage(
-                                      image: FileImage(images[0]),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : (kIsWeb && webImages.length > 0)
-                                  ? DecorationImage(
-                                      image: MemoryImage(webImages[0]),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : null, // No image for this slot
-                            ),
-                            // Show icon only if this specific slot has no image
-                            child: ((!kIsWeb && images.length < 1) || (kIsWeb && webImages.length < 1))
-                                ? Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Icon(
-                                        Icons.camera_alt,
-                                        size: 80,
-                                        color: Colors.grey,
-                                      ),
-                                      SizedBox(height: 10),
-                                      Text(
-                                        "Tap to add image",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                : null,
-                          ),
-                        ),
+                  GestureDetector(
+                    onTap: () {
+                      if (kIsWeb) {
+                        openGallery();
+                      } else {
+                        pickimagedialog();
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey, width: 2),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      Expanded( // 2nd image
-                        child: GestureDetector(
-                          onTap: () {
-                            int currentCount = kIsWeb ? webImages.length : images.length;
-                            if (currentCount >= maxImages) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Maximum $maxImages images allowed")),
-                              );
-                              return;
-                            }
-                            if (kIsWeb) {
-                              openGallery();
-                            } else {
-                              pickimagedialog();
-                            }
-                          },
-                          child: Container(
-                            width: 300,
-                            height: 180,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.grey.shade200,
-                              border: Border.all(color: Colors.grey.shade400),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                              image: (!kIsWeb && images.length > 1)
-                                  ? DecorationImage(
-                                      image: FileImage(images[1]),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : (kIsWeb && webImages.length > 1)
-                                  ? DecorationImage(
-                                      image: MemoryImage(webImages[1]),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : null, // No image for this slot
+                      child: Column(
+                        children: [
+                          Text(
+                            'Add Images (Max 3)',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
                             ),
-                            // Show icon only if this specific slot has no image
-                            child: ((!kIsWeb && images.length < 2) || (kIsWeb && webImages.length < 2))
-                                ? Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Icon(
-                                        Icons.camera_alt,
-                                        size: 80,
-                                        color: Colors.grey,
-                                      ),
-                                      SizedBox(height: 10),
-                                      Text(
-                                        "Tap to add image",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                : null,
                           ),
-                        ),
-                      ),
-                      Expanded( // 3rd image
-                        child: GestureDetector(
-                          onTap: () {
-                            int currentCount = kIsWeb ? webImages.length : images.length;
-                            if (currentCount >= maxImages) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Maximum $maxImages images allowed")),
-                              );
-                              return;
-                            }
-                            if (kIsWeb) {
-                              openGallery();
-                            } else {
-                              pickimagedialog();
-                            }
-                          },
-                          child: Container(
-                            width: 300,
-                            height: 180,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.grey.shade200,
-                              border: Border.all(color: Colors.grey.shade400),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
+                          SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: List.generate(3, (index) {
+                              return GestureDetector(
+                                onTap: () {
+                                  if (kIsWeb) {
+                                    openGallery();
+                                  } else {
+                                    pickimagedialog();
+                                  }
+                                },
+                                child: Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: index == 0 && webImages.isNotEmpty
+                                          ? Colors.green
+                                          : Colors.grey,
+                                      width: 2,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: Colors.grey[100],
+                                    image: index < webImages.length
+                                        ? DecorationImage(
+                                            image: MemoryImage(webImages[index]),
+                                            fit: BoxFit.cover,
+                                          )
+                                        : null,
+                                  ),
+                                  child: index < webImages.length
+                                      ? null
+                                      : Center(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.add_photo_alternate,
+                                                size: 40,
+                                                color: Colors.grey,
+                                              ),
+                                              SizedBox(height: 4),
+                                              Text(
+                                                '${index + 1}',
+                                                style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                 ),
-                              ],
-                              image: (!kIsWeb && images.length > 2)
-                                  ? DecorationImage(
-                                      image: FileImage(images[2]),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : (kIsWeb && webImages.length > 2)
-                                  ? DecorationImage(
-                                      image: MemoryImage(webImages[2]),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : null, // No image for this slot
-                            ),
-                            // Show icon only if this specific slot has no image
-                            child: ((!kIsWeb && images.length < 3) || (kIsWeb && webImages.length < 3))
-                                ? Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Icon(
-                                        Icons.camera_alt,
-                                        size: 80,
-                                        color: Colors.grey,
-                                      ),
-                                      SizedBox(height: 10),
-                                      Text(
-                                        "Tap to add image",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                : null,
+                              );
+                            }),
                           ),
-                        ),
+                          SizedBox(height: 8),
+                          Text(
+                            '${webImages.length}/3 images added',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                   SizedBox(height: 24.0),
                   Row(
@@ -419,7 +434,7 @@ class _SubmitPetState extends State<SubmitPet> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>  Homescreen(user: widget.user),
+                              builder: (context) =>  Mainscreen(user: widget.user),
                             ),
                           );
                         },
@@ -595,6 +610,7 @@ class _SubmitPetState extends State<SubmitPet> {
       return;
     }
 
+
     showDialog(
       context: context,
       builder: (context) {
@@ -609,7 +625,7 @@ class _SubmitPetState extends State<SubmitPet> {
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                submitService();
+                SubmitPet();
               },
               child: const Text('Submit'),
             ),
@@ -619,22 +635,26 @@ class _SubmitPetState extends State<SubmitPet> {
     );
 }
 
-void submitService() async {
+void SubmitPet() async {
     // String base64image = "";
     List<String> base64images = [];
     if (kIsWeb) {
-      // base64image = base64Encode(webImage!);
-      for (var webImages in webImages){
-      base64images.add(base64Encode(webImages));
+      for (int i = 0; i < 3; i++) {
+        if (i < webImages.length) {
+          base64images.add(base64Encode(webImages[i]));
+        } else {
+          base64images.add('');
+        }
       }
     } else {
-      // base64image = base64Encode(image!.readAsBytesSync());
-      for (var images in images){
-      base64images.add(base64Encode(images.readAsBytesSync()));
+      for (int i = 0; i < 3; i++) {
+        if (i < images.length) {
+          base64images.add(base64Encode(images[i].readAsBytesSync()));
+        } else {
+          base64images.add(''); 
+        }
       }
     }
-    String base64image = base64images.join('|||');
-
     String pet_name = petNameController.text.trim();
     String description = descriptionController.text.trim();
 
@@ -647,9 +667,14 @@ void submitService() async {
             'pet_type': selectedPetType,
             'category': selectedCategory,
             'description': description,
-            'image_paths': base64image,
+            'image1': base64images.isNotEmpty ? base64images[0] : "",
+            'image2': base64images.length > 1 ? base64images[1] : "",
+            'image3': base64images.length > 2 ? base64images[2] : "",
             'lat': coordinates.latitude.toString(),
             'lng': coordinates.longitude.toString(),
+            'age': selectedAge,
+            'gender': selectedGender,
+            'health': selectedHealth,
           },
         )
         .then((response) {
@@ -668,7 +693,7 @@ void submitService() async {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>  Homescreen(user: widget.user),
+                  builder: (context) =>  Mainscreen(user: widget.user),
                 ),
               );
             } else {

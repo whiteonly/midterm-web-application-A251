@@ -1,67 +1,84 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1
--- Generation Time: Nov 29, 2025 at 08:19 AM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
+-- 1. Create Users Table (The Parent Table)
+DROP TABLE IF EXISTS `tbl_users`;
+CREATE TABLE `tbl_users` (
+  `user_id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(100) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `password` varchar(225) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `reg_date` datetime(6) NOT NULL DEFAULT current_timestamp(6),
+  `user_credit` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`user_id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+-- 2. Create Profile Table (1:1 relationship with user)
+DROP TABLE IF EXISTS `tbl_profile`;
+CREATE TABLE `tbl_profile` (
+  `user_id` int(11) NOT NULL,
+  `profile_img` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`user_id`),
+  FOREIGN KEY (`user_id`) REFERENCES `tbl_users`(`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Database: `pawpal_db`
---
-
--- --------------------------------------------------------
-
---
--- Table structure for table `tbl_pets`
---
-
+-- 3. Create Pets Table (linked to user)
+DROP TABLE IF EXISTS `tbl_pets`;
 CREATE TABLE `tbl_pets` (
-  `pet_id` INT NOT NULL,
-  `user_id` INT  NOT NULL,
+  `pet_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
   `pet_name` varchar(100) NOT NULL,
   `pet_type` varchar(50) NOT NULL,
   `category` varchar(50) NOT NULL,
-  `description` TEXT NOT NULL,
+  `description` text NOT NULL,
   `image_paths` varchar(50) NOT NULL,
   `lat` varchar(50) NOT NULL,
-  `lng`varchar(50) NOT NULL,
-  `created_at` datetime(6) NOT NULL DEFAULT current_timestamp(6)
+  `lng` varchar(50) NOT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT current_timestamp(6),
+  `age` int(2) NOT NULL,
+  `gender` varchar(10) NOT NULL,
+  `health` varchar(20) NOT NULL,
+  PRIMARY KEY (`pet_id`),
+  FOREIGN KEY (`user_id`) REFERENCES `tbl_users`(`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
+CREATE TABLE `tbl_donations` (
+  `donation_id` int(11) NOT NULL AUTO_INCREMENT,
+  `pet_id` varchar(50) NOT NULL,
+  `user_id` varchar(50) NOT NULL,
+  `donation_type` enum('Money','Food','Medical') NOT NULL,
+  `amount` decimal(10,2) DEFAULT 0.00,
+  `description` text DEFAULT NULL,
+  `donor_name` varchar(255) NOT NULL,
+  `donor_email` varchar(255) NOT NULL,
+  `donor_phone` varchar(20) NOT NULL,
+  `donation_date` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`donation_id`),
+  KEY `pet_id` (`pet_id`),
+  KEY `user_id` (`user_id`),
+  KEY `donation_date` (`donation_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- 4. Create Adoption Requests Table
+DROP TABLE IF EXISTS `tbl_adoptions`;
+CREATE TABLE `tbl_adoptions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `pet_id` int(11) NOT NULL,
+  `submission_id` int(11) NOT NULL,
+  `motivation` text NOT NULL,
+  `update_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`user_id`) REFERENCES `tbl_users`(`user_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`pet_id`) REFERENCES `tbl_pets`(`pet_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Indexes for table `tbl_pets`
---
-ALTER TABLE `tbl_pets`
-  ADD PRIMARY KEY (`pet_id`);
-ALTER TABLE `tbl_pets` add foreign key (user_id) references tbl_users(user_id);
+-- Insert sample user
+INSERT INTO `tbl_users` (`user_id`, `email`, `name`, `password`, `phone`, `reg_date`) VALUES
+(1, 'azri@gmail.com', 'azri', '7c4a8d09ca3762af61e59520943dc26494f8941b', '0194444555', '2025-11-02 09:27:23.965748');
 
-ALTER TABLE `tbl_pets`
-  MODIFY `pet_id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
---
--- Dumping data for table `tbl_users`
---
-
-
---
-
--- AUTO_INCREMENT for table `tbl_users`
---
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+COMMIT;

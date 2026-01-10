@@ -15,23 +15,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     // Base JOIN query
     $baseQuery = "
-        SELECT 
-            s.pet_id,
-            s.user_id,
-            s.pet_name,
-            s.pet_type,
-            s.category,
-            s.description,
-            s.image_paths,
-            s.lat,
-            s.lng,
-            s.created_at,
-            u.name,
-            u.email,
-            u.phone,
-            u.reg_date
-        FROM tbl_pets s
-        JOIN tbl_users u ON s.user_id = u.user_id
+    SELECT 
+        s.pet_id,
+        s.user_id,
+        s.pet_name,
+        s.pet_type,
+        s.category,
+        s.description,
+        s.image_paths,
+        s.lat,
+        s.lng,
+        s.created_at,
+        u.name,
+        u.email,
+        u.phone,
+        u.reg_date,
+        prof.profile_img 
+    FROM tbl_pets s
+    JOIN tbl_users u ON s.user_id = u.user_id
+    LEFT JOIN tbl_profile prof ON prof.user_id = u.user_id
     ";
 
     // Search logic
@@ -39,8 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         $search = $conn->real_escape_string($_GET['search']);
         $sqlloadservices = $baseQuery . "
             WHERE s.pet_name LIKE '%$search%' 
-               OR s.pet_type LIKE '%$search%'
-               OR s.category LIKE '%$search%'
             ORDER BY s.pet_id DESC";
     } else {
         $sqlloadservices = $baseQuery . " ORDER BY s.pet_id DESC";
